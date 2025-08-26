@@ -13,14 +13,26 @@
         <InputText class="form-control" placeholder="Enter Mobile No" @bind-Value="Model.Address" />
         <ValidationMessage For="@(() => Model.Address)" class="text-danger" />
     </div>
+    
     <div class="mb-3">
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind-value="Model.IsDefault">
-            <label class="form-check-label" for="flexSwitchCheckChecked">Is Default Address ?</label>
-        </div>
+        @if (Model.IsDefault)
+        {
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind-value="Model.IsDefault" checked>
+                <label class="form-check-label" for="flexSwitchCheckChecked">Is Default Address ?</label>
+            </div>
+        }
+        else
+        {
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind-value="Model.IsDefault">
+                <label class="form-check-label" for="flexSwitchCheckChecked">Is Default Address ?</label>
+            </div>
+        }
+
     </div>
     <div class="d-grid">
-        <button type="submit" class="btn btn-app">Change Password</button>
+        <button type="submit" class="btn btn-app">Save</button>
     </div>
 </EditForm>
 

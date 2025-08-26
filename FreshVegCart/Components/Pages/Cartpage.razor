@@ -11,7 +11,7 @@
 <SectionContent SectionName="toolbarItems">
     <button type="button" class="btn btn-default btn-sm text-white" @onclick="CartService.ClearCartAsync">Clear</button>
 </SectionContent>
-<div class="container-fluid" style="padding-bottom:76px;">
+<div class="container-fluid">
     <div class="row">
         @if(CartService.Items.Count == 0)
         {
@@ -26,7 +26,7 @@
         {
             @foreach (var item in CartService.Items)
             {
-                <div class="col-12 mb-3 br-white p-3">
+                <div class="col-12 br-white p-2">
                     <div class="hstack gap-2">
                         <div class="product-info flex-grow-1 d-flex align-items-center w-100">
                             <img src="@item.ImageUrl" class="product-img" alt="@item.Name" />
@@ -172,9 +172,12 @@
         height:40px;
         width: 40px;
     }
+    .container-fluid {
+        padding-bottom: 160px !important;
+    }
     .continue-btn {
         position: fixed;
-        bottom: calc(var(--menubar-height) + 5px);
+        bottom: calc(var(--menubar-height));
         left: 50%;
         transform: translateX(-50%);
         padding: 5px 30px;
@@ -188,7 +191,7 @@
         align-items: center;
         background: var(--app-primary, #F44321);
         z-index: 100;
-        gap: 24px;
+        gap: 2px;
     }
     .continue-btn .d-flex {
         flex-direction: column;
