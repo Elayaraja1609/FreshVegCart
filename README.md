@@ -23,6 +23,24 @@ FreshVegCart is a cross-platform .NET MAUI application for ordering fresh vegeta
 - SQLite for local storage.
 - CommunityToolkit.Maui for UI enhancements.
 
+
+## Screenshots
+
+<div style="display: flex; overflow-x: auto; gap: 12px; padding: 8px 0;">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/c0a085e282835e648481052ae800e3d4cfcc922a/FreshVegCart/Home1.png" alt="Home Page" height="320">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/c0a085e282835e648481052ae800e3d4cfcc922a/FreshVegCart/Home2.png" alt="Home Page1" height="320">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/c0a085e282835e648481052ae800e3d4cfcc922a/FreshVegCart/MyCart.png" alt="Cart Page" height="320">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/c0a085e282835e648481052ae800e3d4cfcc922a/FreshVegCart/MyOrder.png" alt="Order History" height="320">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/c0a085e282835e648481052ae800e3d4cfcc922a/FreshVegCart/OrderDetail1.png" alt="Order History" height="320">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/c0a085e282835e648481052ae800e3d4cfcc922a/FreshVegCart/OrderDetail2.png" alt="Order History" height="320">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/c0a085e282835e648481052ae800e3d4cfcc922a/FreshVegCart/MyProfile.png" alt="Profile Page" height="320">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/c0a085e282835e648481052ae800e3d4cfcc922a/FreshVegCart/EditProfile.png" alt="Profile Page" height="320">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/c0a085e282835e648481052ae800e3d4cfcc922a/FreshVegCart/ChangePassword.png" alt="Profile Page" height="320">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/c0a085e282835e648481052ae800e3d4cfcc922a/FreshVegCart/ManageAddress.png" alt="Profile Page" height="320">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/c0a085e282835e648481052ae800e3d4cfcc922a/FreshVegCart/UpdateAddress.png" alt="Profile Page" height="320">
+  <img src="https://github.com/Elayaraja1609/Project-Screenshot/blob/ea601db3ba0532172532820f2d0c4b9b98233943/FreshVegCart/Help1.png" alt="Help Page" height="320">
+</div>
+
 ## Getting Started
 
 ### Prerequisites
