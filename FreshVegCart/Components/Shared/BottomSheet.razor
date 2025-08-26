@@ -1,0 +1,45 @@
+﻿<div class="offcanvas offcanvas-bottom @_className" tabindex="-1" style="visibility:visible;height:inherit;" aria-modal="true" role="dialog">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasBottomLabel">@Title</h5>
+        <button type="button" class="btn-close text-reset" aria-label="Close" @onclick="Close"></button>
+    </div>
+    <div class="offcanvas-body small">
+        @ChildContent
+    </div>
+</div>
+<div class="offcanvas-backdrop fade show" @onclick="Close"></div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title{ get; set; }
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent{ get; set; }
+    [Parameter, EditorRequired]
+    public EventCallback OnClose{ get; set; }
+    private string _className = "";
+    private const int animationDuration = 100; // in milliseconds
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _className = "showing";
+            await Task.Delay(animationDuration);
+            StateHasChanged();
+
+            _className = "show";
+            StateHasChanged();
+        }
+    }
+    private async Task Close()
+    {
+        _className = "hiding";
+        await Task.Delay(animationDuration);
+        _className = "";
+        await OnClose.InvokeAsync();
+    }
+}

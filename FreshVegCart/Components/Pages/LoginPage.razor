@@ -1,0 +1,60 @@
+﻿@page "/login"
+@layout AuthLayout
+@inject NavigationManager navigationManager
+@inject IAuthApi authApi
+@inject AuthState authState
+@inject HandlerService handlerService
+
+<SectionContent SectionName="pageTitle">Login</SectionContent>
+
+<div class="">
+    <EditForm Model="_model">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <InputText id="email" class="form-control" @bind-Value="_model.Username" />
+            @* <ValidationMessage For="@(() => _model.Username)" /> *@
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <InputText id="password" type="password" class="form-control" @bind-Value="_model.Password" />
+            @* <ValidationMessage For="@(() => _model.Password)" /> *@
+        </div>
+        <div class="mb-3 d-grid"><button type="submit" class="btn btn-app" @onclick="LoginAsync">Login</button></div>
+        <div class="my-3 hstack gap-2">
+            <hr class="hr-style" />
+            <span class="" style="width:84px;">New User?</span>
+            <hr class="hr-style" />
+        </div>
+        <div class="d-grid">
+            <NavLink href="/register" type="button" class="btn btn-outline-app" >Register</NavLink>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private LoginDto _model = new();
+    private async Task LoginAsync()
+    {
+        await handlerService.CallApiAsync(async () =>
+        {
+            var apiResult = await authApi.LoginAsync(_model);
+            if (!apiResult.IsSuccess)
+            {
+                await MauiInterop.AlertAsync(apiResult.Error, "Error");
+                return;
+            }
+            LoggedInUser user = apiResult.Data;
+            authState.Login(user);
+            navigationManager.NavigateTo(authState.RedirectUrlFromLogin, replace: true);
+            authState.RedirectUrlFromLogin = "/";
+        });
+    }
+
+}
+<style>
+    .hr-style{
+        width:calc(50%-42px);
+    }
+</style>

@@ -1,0 +1,126 @@
+﻿@page "/orderdetails/{OrderId:int}"
+@layout StackedPageLayout
+
+@inject AuthState authState
+@inject IOrderApi OrderApi
+@inject NavigationManager navigationManager
+@inject HandlerService handlerService
+
+@if(_order is not null)
+{
+    <SectionContent SectionName="pageTitle">Order #@_order.Id</SectionContent>
+
+    <div class="container bg-app-primary">
+        <div class="row">
+            <div class="col tab text-center py-2 mb-0 h6 @(isInfoTab ? "bg-app-lighter text-white" : "")" @onclick="() => SelectTab(TAB_INFO)">
+                <span>Order Info</span>
+            </div>
+            <div class="col tab text-center py-2 mb-0 h6 @(!isInfoTab ? "bg-app-lighter text-white" : "")" @onclick="() => SelectTab(TAB_ITEMS)">
+                <span>Order Items</span>
+            </div>
+        </div>
+    </div>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12 bg-white">
+                @if (isInfoTab)
+                {
+                    <tabel class="table">
+                        <tbody>
+                            <tr>
+                                <th>Order Id:</th>
+                                <td>@_order.Id</td>
+                            </tr>
+                            <tr>
+                                <th>Order Status:</th>
+                                <td>@_order.Status</td>
+                            </tr>
+                            <tr>
+                                <th>Order Date:</th>
+                                <td>@_order.Date.ToString("dd-MMM-yyy")</td>
+                            </tr>
+                            <tr>
+                                <th>Total Amount:</th>
+                                <td>@_order.TotalAmount.ToString("c")</td>
+                            </tr>
+                            <tr>
+                                <th>Total Items:</th>
+                                <td>@_order.TotalItems item(s)</td>
+                            </tr>
+                            <tr>
+                                <th>Address:</th>
+                                <td>
+                                    <label>@_order.AddressName</label>
+                                    <label class="d-block">@_order.Address</label>
+                                 </td>
+                            </tr>
+                        </tbody>
+                    </tabel>
+                }
+                else
+                {
+                    <ul class="list-unstyled">
+                        @foreach (var item in _order.Items)
+                        {
+                            <li class="p-3 border-bottom">
+                                <div class="d-flex gap-3 align-items-center">
+                                    <img src="@item.ProductImageUrl" alt="" class="product-img" />
+                                    <div class="d-flex flex-column flex-grow-1 gap-1">
+                                        <label class="text-app-primary fw-bold">@item.ProductName</label>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <label>@item.Quantity x @item.ProductPrice/@item.Unit</label>
+                                            <label>@item.Amount.ToString("c")</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+else
+{
+    <SectionContent SectionName="pageTitle">Order Details</SectionContent>
+}
+@code {
+    [Parameter]
+    public int OrderId { get; set; }
+
+    private OrderDto? _order;
+    private const string TAB_INFO = "info";
+    private const string TAB_ITEMS = "items";
+    private string? _selectedTab = TAB_INFO;
+    private bool isInfoTab => _selectedTab == TAB_INFO;
+    protected override async Task OnInitializedAsync()
+    {
+        await handlerService.CallApiAsync(async ()=>
+        {
+            var apiResult = await OrderApi.GetUserOrderItemsAsync(OrderId, authState.User!.Id);
+            if (apiResult.IsSuccess)
+            {
+                _order = apiResult.Data;
+            }
+            else
+            {
+                await MauiInterop.AlertAsync(apiResult.Error, "Error");
+                navigationManager.NavigateTo("/order", replace: true);
+                return;
+            }
+        });
+        
+    }
+    private void SelectTab(string tabName)
+    {
+        _selectedTab = tabName;
+    }
+}
+<style>
+    .product-img {
+        height: 40px;
+        width: 40px;
+    }
+</style>

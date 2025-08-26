@@ -1,0 +1,31 @@
+﻿@inject CartService CartService
+
+@if(Product.Quantity ==0){
+    <button type="button" class="btn-app" @onclick="IncrementQuantity">Add to Cart</button>
+}
+else
+{
+    <div class="d-flex">
+        <button class="btn-outline-app btn-inc-dec right-radius-0" @onclick="DecrementQuantity">-</button>
+        <span class="d-flex align-items-center justify-content-center btn-inc-dec bg-app-lighter text-white">@Product.Quantity</span>
+        <button class="btn-outline-app btn-inc-dec left-radius-0" @onclick="IncrementQuantity">+</button>
+    </div>    
+}
+@code {
+    [Parameter, EditorRequired]
+    public ProductDto Product { get; set; }
+
+    private async Task IncrementQuantity()
+    {
+        Product.Quantity++;
+        await CartService.IncreaseQuantityAsync(Product);
+    }
+    private async Task DecrementQuantity()
+    {
+        if (Product.Quantity > 0)
+        {
+            Product.Quantity--;
+            await CartService.DecreaseQuantityAsync(Product);
+        }
+    }
+}

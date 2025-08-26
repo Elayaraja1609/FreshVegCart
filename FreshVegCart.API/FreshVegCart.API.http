@@ -1,0 +1,6 @@
+@FreshVegCart.API_HostAddress = http://localhost:5110
+
+GET {{FreshVegCart.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

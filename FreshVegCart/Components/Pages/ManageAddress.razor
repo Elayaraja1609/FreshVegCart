@@ -1,0 +1,90 @@
+﻿@page "/manage-address"
+@layout StackedPageLayout
+
+@inject IUserApi userApi
+@inject HandlerService handlerService
+
+<SectionContent SectionName="pageTitle">Manage Addresses</SectionContent>
+<SectionContent SectionName="toolbarItems">
+    <i class="bx bx-sm bx-plus text-primary" @onclick="()=>_address=new()"></i>
+</SectionContent>
+
+<div class="container pt-3">
+    <div class="row bg-white">
+        <div class="col-12">
+            <ul class="list-unstyled"> 
+                @foreach (var addr in _addresses)
+                {
+                    <li class="p-2 border-bottom d-flex gap-2">
+                        <i class="bx bx-sm bx-edit text-primary" @onclick="()=>_address=addr"></i>
+                        <div class="menu-name flex-grow-1" @onclick="()=>_address=addr">
+                            <label class="text-primary">
+                                @addr.Name
+                                @if (addr.IsDefault)
+                                {
+                                    <span class=" ms-3 badge rounded-pill bg-success">Default</span>
+                                }
+                            </label>
+                            <small class="text-secondary mt-1 d-block">@addr.Address</small>
+                        </div>
+                        <div class="d-flex align-items-center" @onclick="()=>DeleteAddressAsync(addr.Id)">
+                            <i class="bx bx-sm bx-trash text-danger"></i>
+                        </div>
+                    </li>
+                }
+                <li class="p-2 d-flex gap-2" @onclick="()=>_address=new()">
+                    <i class="bx bx-sm bx-plus text-primary"></i>
+                    <div class="menu-name flex-grow-1">
+                        <label class="text-primary">Add a new address</label>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+@if(_address is not null)
+{
+    <BottomSheet Title="Save Address" OnClose="()=>_address=null">
+        <SaveAddress Model="_address" OnSaved="OnAddressSavedAsync" />
+    </BottomSheet>
+}
+@code {
+    private AddressDto[] _addresses = [];
+    private AddressDto? _address = null;
+
+    private async Task LoadAddressesAsync()
+    {
+        await handlerService.CallApiAsync(async()=>
+        {
+            var apiResult = await userApi.GetAddressesAsync();
+            if (!apiResult.IsSuccess)
+            {
+                await MauiInterop.AlertAsync(apiResult.Error, "Error");
+                return;
+            }
+            _addresses = apiResult.Data;
+        });
+
+    }
+    protected override async Task OnInitializedAsync()=> await LoadAddressesAsync();
+    private async Task DeleteAddressAsync(int addressId)
+    {
+        if (await MauiInterop.ConfirAsync("Do you really want to delete this address?", "Confirm?")) return;
+        await handlerService.CallApiAsync(async () =>
+        {
+            var apiResult = await userApi.DeleteAddressAsync(addressId);
+            if (!apiResult.IsSuccess)
+            {
+                await MauiInterop.AlertAsync(apiResult.Error, "Error");
+                return;
+            }
+            await LoadAddressesAsync();
+            await MauiInterop.ShowToastAsync("Address Deleted Successfully");
+        });
+    }
+    private async Task OnAddressSavedAsync()
+    {
+        _address = null;
+        await LoadAddressesAsync();
+    }
+}

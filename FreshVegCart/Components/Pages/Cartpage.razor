@@ -1,0 +1,233 @@
+﻿@page "/cart"
+
+@inject NavigationManager NavigationManager
+@inject CartService CartService
+@inject AuthState AuthState
+@inject IUserApi UserApi
+@inject IOrderApi OrderApi
+@inject HandlerService handlerService
+
+<SectionContent SectionName="pageTitle">My Cart</SectionContent>
+<SectionContent SectionName="toolbarItems">
+    <button type="button" class="btn btn-default btn-sm text-white" @onclick="CartService.ClearCartAsync">Clear</button>
+</SectionContent>
+<div class="container-fluid" style="padding-bottom:76px;">
+    <div class="row">
+        @if(CartService.Items.Count == 0)
+        {
+            <div class="d-flex flex-column gap-2 justify-content-center align-items-center mt-5 py-5">
+                <img src="vegetables_basket.png"alt="Empty Cart" style="width:200px;height:200px;" />
+
+                <label class="h4 text-muted mt-3">Your cart is empty</label>
+                <NavLink class="btn btn-app mt-3" href="/">Continue Shopping</NavLink>
+            </div>    
+        }
+        else
+        {
+            @foreach (var item in CartService.Items)
+            {
+                <div class="col-12 mb-3 br-white p-3">
+                    <div class="hstack gap-2">
+                        <div class="product-info flex-grow-1 d-flex align-items-center w-100">
+                            <img src="@item.ImageUrl" class="product-img" alt="@item.Name" />
+                            <div class="d-flex flex-column flex-grow-1 ms-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label class="product-name text-app-dark fw-bold">@item.Name</label>
+                                    <div class="d-flex">
+                                        <button class="btn-outline-app btn-inc-dec right-radius-0" @onclick="() => CartService.DecreaseCartItemQuantityAsync(item)">-</button>
+                                        <span class="d-flex align-items-center justify-content-center btn-inc-dec bg-app-lighter text-white">@item.Quantity</span>
+                                        <button class="btn-outline-app btn-inc-dec left-radius-0" @onclick="() => CartService.IncreaseCartItemQuantityAsync(item)">+</button>
+                                    </div>
+                                </div>
+                                <hr sytle="margin:8px" />
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label class="product-unit text-muted">@item.Quantity * @item.Price.ToString("c")/@item.Unit</label>
+                                    <label class="text-app-dark fw-bold">@item.Amount.ToString("c")</label>
+
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="vr"></div>
+                        <div class="delete-btn" @onclick="() => CartService.RemoveItemAsync(item)">
+                            <i class="bx bx-sm bx-trash text-danger"></i>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+</div>
+@if (CartService.Count > 0)
+{
+    <div class="position-fixed bg-app-primary continue-btn d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column text-white">
+            <label class="h5 fw-bold">Total: @CartService.TotalPrice.ToString("c")</label>
+            
+            <span class="total-label">Total Items: @CartService.Count</span>
+        </div>
+        <button type="button" class="btn btn-app bg-white" style="color:var(--app-primary);" @onclick="ContinueCheckOut">Continue</button>
+    </div>
+}
+@if (_showAddressSelectionSheet)
+{
+    <BottomSheet Title="Select Address" OnClose="()=>_showAddressSelectionSheet=false">
+        <div class="mb-3">
+            <select class="form-control" @bind="@_selectedAddressId">
+                <option value="0">Select Address</option>
+                @foreach (var a in _addresses)
+                {
+                    <option value="@a.Id">@a.Name - @a.Address</option>
+                }
+            </select>
+            <NavLink href="/manage-address" class="btn btn-link btn-sm mt-2">Manage Addresses</NavLink>
+        </div>
+        <div class="mb-3 d-grid">
+            <button type="button" class="btn-app" @onclick="PlaceorderAsync">Place Order</button>
+        </div>
+    </BottomSheet>    
+}
+@code {
+    private AddressDto[] _addresses = [];
+    private bool _showAddressSelectionSheet;
+    private int _selectedAddressId;
+    private async Task ContinueCheckOut()
+    {
+        if (!AuthState.IsLoggedIn)
+        {
+            AuthState.RedirectUrlFromLogin = "/cart";
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+        bool continueAfterAddressApiCall = true;
+        if (_addresses.Length == 0)
+        {
+            await handlerService.CallApiAsync(async () =>
+            {
+                var apiResult = await UserApi.GetAddressesAsync();
+                if (apiResult.Data?.Length == 0)
+                {
+                    if (await MauiInterop.ConfirAsync("You did not add any address. Do you want to add an address?", "Confirm"))
+                    {
+                        NavigationManager.NavigateTo("/manage-address");
+                        continueAfterAddressApiCall = false;
+                        return;
+                    }
+                }
+                _addresses = apiResult.Data ?? [];
+            });
+
+        }
+        if (continueAfterAddressApiCall)
+        {
+            _selectedAddressId = _addresses.FirstOrDefault(a => a.IsDefault)?.Id ?? 0;
+            _showAddressSelectionSheet = true;
+        }
+    }
+
+
+    private async Task PlaceorderAsync()
+    {
+        if(_selectedAddressId == 0)
+        {
+            await MauiInterop.AlertAsync("Please select an address to continue.", "No Address Selected");
+            return;
+        }
+        try
+        {
+            OrderItemSaveDto[] orderItems = CartService.Items.Select(i=>
+                new OrderItemSaveDto
+                {
+                    ProductId = i.ProductId,
+                    Quantity = i.Quantity
+                }).ToArray();
+            var selectedAddress = _addresses.First(a => a.Id == _selectedAddressId);
+            var placeOrderDto = new PlaceOrderDto(_selectedAddressId,selectedAddress.Address,selectedAddress.Name,orderItems);
+            await handlerService.CallApiAsync(async () =>
+            {
+                var apiResult = await OrderApi.PlaceOrderAsync(placeOrderDto);
+                if(!apiResult.IsSuccess)
+                {
+                    await MauiInterop.AlertAsync(apiResult.Error, "Order Failed");
+                    return;
+                }
+                await MauiInterop.ShowToastAsync("Order Placed");
+                await CartService.ClearCartAfterPlaceOrderAsync();
+                _showAddressSelectionSheet = false;
+            });
+            
+        }
+        catch(Exception ex)
+        {
+            await MauiInterop.AlertAsync(ex.Message, "Order Failed");
+            return;
+        }
+    }
+}
+<style>
+    .product-img{
+        height:40px;
+        width: 40px;
+    }
+    .continue-btn {
+        position: fixed;
+        bottom: calc(var(--menubar-height) + 5px);
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 5px 30px;
+        min-width: 320px;
+        max-width: 480px;
+        width: 80vw;
+        height: auto;
+        border-radius: 38px;
+        box-shadow: 0 0 16px 2px rgba(0,0,0,0.18);
+        display: flex;
+        align-items: center;
+        background: var(--app-primary, #F44321);
+        z-index: 100;
+        gap: 24px;
+    }
+    .continue-btn .d-flex {
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        margin-right: 0;
+        gap: 4px;
+    }
+    .continue-btn .h3 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #fff;
+        line-height: 1.1;
+    }
+    .continue-btn .total-label {
+        font-size: 1.1rem;
+        color: #fff;
+        opacity: 0.85;
+        margin: 0;
+        line-height: 1.1;
+        font-weight: 500;
+    }
+    .continue-btn .items-label {
+        font-size: 1.1rem;
+        color: #fff;
+        opacity: 0.85;
+        margin: 0;
+        line-height: 1.1;
+        font-weight: 500;
+    }
+    .continue-btn .btn-app {
+        margin-left: 8px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        transition: background 0.2s;
+        height: 44px;
+        border-radius: 22px;
+        width: 110px;
+    }
+</style>

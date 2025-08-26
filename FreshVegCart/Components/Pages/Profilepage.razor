@@ -1,0 +1,120 @@
+﻿@page "/profile"
+
+@inject NavigationManager NavigationManager
+@inject AuthState authState
+
+<SectionContent SectionName="pageTitle">My Profile</SectionContent>
+
+@if (authState.IsLoggedIn)
+{
+    <div class="container my-3">
+        <div class="row">
+            <div class="col-12 d-flex flex-column gap-2 justify-content-center align-items-center">
+                <div class="bg-app-primary text-center text-white img-container rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bx bx-sm bx-user"></i>
+                </div>
+                <label class="h3 m-0">@authState.User!.Name</label>
+            </div>
+        </div>
+        <div class="row bg-white mt-3">
+            <div class="col-12">
+                <ul class="list-unstyled">
+                    <li class="p-2 border-bottom d-flex gap-2"  @onclick="() => _showUpdateProfileSheet = true">
+                        <i class="bx bx-sm bx-edit text-primary"></i>
+                        <div class="menu-name flex-grow-1">
+                            <label class="text-primary">Edit Profile</label>
+                            <small class="text-secondary mt-1 d-block">Edit your Name or Mobile Number</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-chevron-right text-secondary"></i>
+                        </div>
+                        
+                    </li>
+                    <li class="p-2 border-bottom d-flex gap-2" @onclick="() => _chowChangePasswordSheet = true">
+                        <i class="bx bx-sm bx-lock text-primary"></i>
+                        <div class="menu-name flex-grow-1">
+                            <label class="text-primary">Change Password</label>
+                            <small class="text-secondary mt-1 d-block">Change your password</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-chevron-right text-secondary"></i>
+                        </div>
+                    </li>
+                    <li class="p-2 border-bottom d-flex gap-2" @onclick="NavigateToManageAddress">
+                        <i class="bx bx-sm bx-map text-primary"></i>
+                        <div class="menu-name flex-grow-1">
+                            <label class="text-primary">Manage Address</label>
+                            <small class="text-secondary mt-1 d-block">Add, edit, or delete your addresses</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-chevron-right text-secondary"></i>
+                        </div>
+                    </li>
+                    <li class="p-2 d-flex gap-2" @onclick="Logout">
+                        <i class="bx bx-sm bx-log-out text-primary"></i>
+                        <div class="menu-name flex-grow-1">
+                            <label class="text-primary">Logout</label>
+                            <small class="text-secondary mt-1 d-block">Logout from Fresh Veg Cart</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-chevron-right text-secondary"></i>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+@if (_chowChangePasswordSheet)
+{
+    <BottomSheet Title="Change Password" OnClose="() => _chowChangePasswordSheet = false">
+        <ChangePasswordForm OnSaved="()=>_chowChangePasswordSheet = false"></ChangePasswordForm>
+    </BottomSheet>
+}
+@if (_showUpdateProfileSheet)
+{
+    <BottomSheet Title="Update Profile" OnClose="() => _showUpdateProfileSheet = false">
+        <UpdateProfileForm OnSaved="()=>_showUpdateProfileSheet = false"></UpdateProfileForm>
+    </BottomSheet>
+}
+@code {
+    private bool _chowChangePasswordSheet = false;
+    private bool _showUpdateProfileSheet = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!authState.IsLoggedIn)
+        {
+            await MauiInterop.AlertAsync("You need to log in to view your profile.", "Access Denied");
+            authState.RedirectUrlFromLogin = "/profile";
+            NavigationManager.NavigateTo("/login", replace: true);
+        }
+    }
+
+    private async Task Logout()
+    {
+        if (await MauiInterop.ConfirAsync("Do you want to logout?", "Confirm Logout?"))
+        {
+            authState.Logout();
+            NavigationManager.NavigateTo("/", replace: true);
+        }
+    }
+
+    private void NavigateToManageAddress()
+    {
+        NavigationManager.NavigateTo("/manage-address");
+    }
+}
+<style>
+    .img-container {
+        border-radius: 20px;
+        width: 70px;
+        height:70px;
+        padding: 5px;
+    }
+
+    .img-fluid {
+        width: 100%;
+        height: 100%;
+    }
+</style>

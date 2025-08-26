@@ -1,0 +1,21 @@
+﻿<Router AppAssembly="@typeof(MauiProgram).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="null" />
+    </Found>
+</Router>
+
+@inject HandlerService handlerService
+@inject NavigationManager navigationManager
+@inject AuthState authState
+@code{
+    protected override void OnInitialized()
+    {
+        handlerService.NavigationRequested+= OnNavigationRequested;
+    }
+    private void OnNavigationRequested(string url)
+    {
+        authState.RedirectUrlFromLogin = navigationManager.Uri.Replace(navigationManager.BaseUri,"/");
+        navigationManager.NavigateTo(url,replace:true);
+    }
+}

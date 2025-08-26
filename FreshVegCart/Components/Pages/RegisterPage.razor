@@ -1,0 +1,62 @@
+﻿@page "/register"
+
+@layout AuthLayout
+@inject NavigationManager navigationManager
+@inject IAuthApi authApi
+@inject HandlerService handlerService
+
+<SectionContent SectionName="pageTitle">Register</SectionContent>
+
+<div class="">
+    <EditForm Model="_model" OnValidSubmit="RegisterAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="Name" class="form-label">Name</label>
+            <InputText id="name" class="form-control" @bind-Value="_model.Name" />
+            @* <ValidationMessage For="@(() => _model.Username)" /> *@
+        </div>
+        <div class="mb-3">
+            <label for="Email" class="form-label">Email</label>
+            <InputText id="Email"  class="form-control" @bind-Value="_model.Email" />
+            @* <ValidationMessage For="@(() => _model.Password)" /> *@
+        </div>
+        <div class="mb-3">
+            <label for="Mobile" class="form-label">Contact No.</label>
+            <InputText id="Mobile" class="form-control" @bind-Value="_model.Mobile" />
+            @* <ValidationMessage For="@(() => _model.Username)" /> *@
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <InputText id="password" type="password" class="form-control" @bind-Value="_model.Password" />
+            @* <ValidationMessage For="@(() => _model.Password)" /> *@
+        </div>
+        <div class="mb-3 d-grid"><button type="submit" class="btn btn-app">Login</button></div>
+        <div class="my-3 hstack gap-2">
+            <hr class="hr-style" />
+            <span class="" style="width:116px;text-align:center;">Existing User?</span>
+            <hr class="hr-style" />
+        </div>
+        <div class="d-grid">
+            <NavLink href="/login" type="button" class="btn btn-outline-app" >Login</NavLink>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private RegisterDto _model = new();
+    private async Task RegisterAsync()
+    {
+        await handlerService.CallApiAsync(async () =>
+        {
+            var apiResult = await authApi.RegisterAsync(_model);
+            if (!apiResult.IsSuccess)
+            {
+                await MauiInterop.AlertAsync(apiResult.Error, "Error");
+                return;
+            }
+            await MauiInterop.ShowToastAsync("User Registered Successfully");
+            navigationManager.NavigateTo("/login", replace: true);
+        });
+    }
+}

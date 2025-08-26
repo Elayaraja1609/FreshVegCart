@@ -1,0 +1,111 @@
+﻿:root{
+    --app-lighter:#FF6347;
+    --app-light:#FF5733;
+    --app-primary:#F2431D;
+    --app-dark:E43712;
+    --app-secondary:#FFC107;
+    --navbar-height:60px;
+    --menubar-height:60px;
+}
+
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+body {
+    background-color:#eee;
+}
+.bg-app-lighter {
+    background-color:var(--app-lighter);
+}
+.bg-app-light {
+    background-color: var(--app-light);
+}
+.bg-app-primary {
+    background-color: var(--app-primary);
+}
+.bg-app-dark {
+    background-color: var(--app-dark);
+}
+.bg-app-secondary {
+    background-color: var(--app-secondary);
+}
+
+.bg-app-lighter {
+    background-color: var(--app-lighter);
+}
+
+.text-app-light {
+    color: var(--app-light);
+}
+
+.text-app-primary {
+    color: var(--app-primary);
+}
+
+.text-app-dark {
+    color: var(--app-dark);
+}
+
+.text-app-secondary {
+    color: var(--app-secondary);
+}
+.btn-app {
+	background-color: var(--app-light);
+	padding: 6px 15px;
+	border: none;
+	color: white;
+	font-size: 15px;
+	outline: none;
+	text-decoration: none;
+	border-radius: 5px;
+}
+    .btn-app:hover {
+        text-decoration: none;
+        color:white;
+    }
+.btn-outline-app {
+    background-color: white;
+    padding: 6px 15px;
+    border: 1px solid var(--app-lighter);
+    color: var(--app-lighter);
+    font-size: 15px;
+    outline: none;
+    text-decoration: none;
+    border-radius: 5px;
+}
+    .btn-outline-app:hover {
+        text-decoration: none;
+        color: var(--app-lighter);
+    }
+.btn-inc-dec {
+    height:34px;
+    width:34px;
+}
+.right-radius-0{
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.left-radius-0 {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+}
+.status-bar-safe-area {
+    display: none;
+}
+
+@supports (-webkit-touch-callout: none) {
+    .status-bar-safe-area {
+        display: flex;
+        position: sticky;
+        top: 0;
+        height: env(safe-area-inset-top);
+        background-color: #f7f7f7;
+        width: 100%;
+        z-index: 1;
+    }
+
+    .flex-column, .navbar-brand {
+        padding-left: env(safe-area-inset-left);
+    }
+}
